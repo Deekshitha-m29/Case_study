@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: motivation-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: motivation
+  template:
+    metadata:
+      labels:
+        app: motivation
+    spec:
+      containers:
+      - name: motivation-container
+        image: deekshu209/motivation-tracker:latest 
+        ports:
+        - containerPort: 5000

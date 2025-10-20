@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Your Motivation History</h2>
+{% if notes %}
+  <ul>
+    {% for n in notes %}
+      <li>{{ n }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No motivational notes yet. <a href="/">Add one!</a></p>
+{% endif %}
+<p><a href="/">⬅️ Back</a></p>
+{% endblock %}
