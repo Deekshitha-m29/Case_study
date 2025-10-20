@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_USER = 'deekshu209'      // lowercase
+        DOCKERHUB_USER = 'deekshu209'
         IMAGE_NAME = 'motivation-tracker'
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
     }
@@ -33,8 +33,10 @@ pipeline {
         }
 
         stage('Deploy to Kubernetes') {
-            withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                bat "kubectl apply -f k8s/deployment.yaml --kubeconfig=%KUBECONFIG%"
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
+                    bat "kubectl apply -f k8s/deployment.yaml --kubeconfig=%KUBECONFIG%"
+                }
             }
         }
 
@@ -49,6 +51,8 @@ pipeline {
         }
     }
 }
+
+
 
 
 
