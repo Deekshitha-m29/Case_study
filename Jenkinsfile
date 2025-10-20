@@ -25,7 +25,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    bat "docker login -u %USERNAME% -p %PASSWORD%"
+                    bat "docker login -u deekshu209 -p Admins209"
                     bat "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
                     bat "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
                 }
@@ -50,6 +50,7 @@ pipeline {
         }
     }
 }
+
 
 
 
