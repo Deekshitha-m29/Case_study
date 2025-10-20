@@ -2,15 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_USER = 'Deekshu_209'
+        DOCKERHUB_USER = 'deekshu_209'      // lowercase
         IMAGE_NAME = 'motivation-tracker'
-        KUBECONFIG_CRED = credentials('kubeconfig-cred')
-        DOCKERHUB_CRED = credentials('dockerhub-cred')
+        BUILD_NUMBER = "${env.BUILD_NUMBER}"
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout SCM') {
             steps {
                 checkout scm
             }
@@ -25,23 +24,18 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                bat """
-                echo %DOCKERHUB_CRED_PSW% | docker login -u %DOCKERHUB_CRED_USR% --password-stdin
-                docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}
-                docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest
-                """
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    bat "docker login -u %USERNAME% -p %PASSWORD%"
+                    bat "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}"
+                    bat "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
+                }
             }
         }
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG_FILE')]) {
-                    bat """
-                    set KUBECONFIG=%KUBECONFIG_FILE%
-                    powershell -Command "(Get-Content k8s\\deployment.yaml) -replace '<dockerhub_user>', '${DOCKERHUB_USER}' | Set-Content k8s\\deployment.yaml"
-                    kubectl apply -f k8s/deployment.yaml
-                    kubectl apply -f k8s/service.yaml
-                    """
+                withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG')]) {
+                    bat "kubectl apply -f k8s-deployment.yaml --kubeconfig=%KUBECONFIG%"
                 }
             }
         }
@@ -49,10 +43,12 @@ pipeline {
 
     post {
         success {
-            echo "🎉 Deployment Successful!"
+            echo "✅ Deployment Succeeded!"
         }
         failure {
             echo "❌ Deployment Failed!"
         }
     }
 }
+
+
