@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_USER = 'deekshu_209'      // lowercase
+        DOCKERHUB_USER = 'deekshu209'      // lowercase
         IMAGE_NAME = 'motivation-tracker'
         BUILD_NUMBER = "${env.BUILD_NUMBER}"
     }
@@ -50,5 +50,6 @@ pipeline {
         }
     }
 }
+
 
 
