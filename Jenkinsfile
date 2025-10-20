@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_USER = '<your_dockerhub_username>'
+        DOCKERHUB_USER = 'Deekshu_209'
         IMAGE_NAME = 'motivation-tracker'
-        KUBECONFIG_CRED = credentials('kubeconfig-cred')
-        DOCKERHUB_CRED = credentials('dockerhub-cred')
+        KUBECONFIG_CRED = credentials('kubeconfig-cred') // your uploaded kubeconfig secret ID
+        DOCKERHUB_CRED = credentials('dockerhub-cred')   // your Docker Hub credentials ID in Jenkins
     }
 
     stages {
@@ -17,7 +17,10 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER} ."
+                sh """
+                docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER} .
+                docker tag ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER} ${DOCKERHUB_USER}/${IMAGE_NAME}:latest
+                """
             }
         }
 
@@ -26,6 +29,7 @@ pipeline {
                 sh """
                 echo "${DOCKERHUB_CRED_PSW}" | docker login -u "${DOCKERHUB_CRED_USR}" --password-stdin
                 docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${BUILD_NUMBER}
+                docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest
                 """
             }
         }
@@ -53,3 +57,5 @@ pipeline {
         }
     }
 }
+
+
